@@ -23,8 +23,12 @@ PeerFinder::PeerFinder(QObject *parent) :
     } while(tempId < 0 || tempId > 65535);
     localId = tempId;
 
+    qDebug() << "Node finder starting up. ID" << localId;
+
     socket = new QUdpSocket(this);
     socket->bind(LANChatNetDefs::updPort, QUdpSocket::ShareAddress);
+
+    connect(socket, SIGNAL(readyRead()), this, SLOT(read()));
 }
 
 void PeerFinder::read() {
@@ -67,6 +71,8 @@ void PeerFinder::send() {
 
     stream << LANChatNetDefs::finderVersion;
     stream << localId;
+
+    qDebug() << "Sending" << output.size() << "bytes.";
 
     if(output.size() > 512) {
         qWarning() << "Trying to send a datagram" << output.size() << "bytes long. This may cause problems.";
