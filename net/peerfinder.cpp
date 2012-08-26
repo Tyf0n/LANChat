@@ -38,6 +38,10 @@ void PeerFinder::read() {
     QHostAddress senderAddress;
     socket->readDatagram(input.data(), input.size(), &senderAddress);
 
+    for(int i = 0, max = input.size(); i < max; i++) {
+        qDebug() << "input["<<i<<"] = " << (int) input[i];
+    }
+
     QBuffer buffer(&input);
     buffer.open(QIODevice::ReadOnly);
     QDataStream stream(&buffer);
@@ -48,10 +52,10 @@ void PeerFinder::read() {
     quint16 remoteId;
     stream >> remoteId;
 
-    if(remoteVersion != LANChatNetDefs::finderVersion) {
-        qWarning() << "Received finder datagram from a client with a different version ("<<remoteVersion<<"). Ignoring.";
-        return;
-    }
+//    if(remoteVersion != LANChatNetDefs::finderVersion) {
+//        qWarning() << "Received finder datagram from a client with a different version ("<<remoteVersion<<"). Ignoring.";
+//        return;
+//    }
 
     if(remoteId != localId) {
         qDebug() << "Got packet from" << remoteId;
@@ -66,13 +70,16 @@ void PeerFinder::read() {
 void PeerFinder::send() {
     QByteArray output;
     QBuffer buffer(&output);
-    buffer.open(QIODevice::WriteOnly);
+    buffer.open(QIODevice::ReadWrite);
     QDataStream stream(&buffer);
 
     stream << LANChatNetDefs::finderVersion;
     stream << localId;
 
     qDebug() << "Sending" << output.size() << "bytes.";
+    for(int i = 0, max = output.size(); i < max; i++) {
+        qDebug() << "output["<<i<<"] = " << (int) output[i];
+    }
 
     if(output.size() > 512) {
         qWarning() << "Trying to send a datagram" << output.size() << "bytes long. This may cause problems.";
