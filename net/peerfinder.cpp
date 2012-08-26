@@ -46,8 +46,6 @@ void PeerFinder::read() {
     buffer.open(QIODevice::ReadOnly);
     QDataStream stream(&buffer);
 
-    quint16 remoteVersion;
-    stream >> remoteVersion;
 
     quint16 remoteId;
     stream >> remoteId;
@@ -58,7 +56,7 @@ void PeerFinder::read() {
 //    }
 
     if(remoteId != localId) {
-        qDebug() << "Got packet from" << remoteId;
+        qDebug() << "Got packet from" << remoteId << "address" << senderAddress.toString();
         PeerNode *node = new PeerNode(this);
         node->setId(remoteId);
         node->setAddress(senderAddress);
@@ -73,7 +71,6 @@ void PeerFinder::send() {
     buffer.open(QIODevice::ReadWrite);
     QDataStream stream(&buffer);
 
-    stream << LANChatNetDefs::finderVersion;
     stream << localId;
 
     qDebug() << "Sending" << output.size() << "bytes.";
